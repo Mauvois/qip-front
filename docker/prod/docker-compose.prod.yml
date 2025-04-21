@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  frontend:
+    image: qip_front_prod
+    build: .
+    container_name: qip_front_prod
+    ports:
+      - "8013:80"
+    networks:
+      - qip_backend_net
+      - woodpecker_default
+    restart: unless-stopped
+
+networks:
+  qip_backend_net:
+    external: true
+  woodpecker_default:
+    external: true
