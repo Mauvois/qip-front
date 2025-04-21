@@ -1,0 +1,45 @@
+steps:
+  debug:
+    image: alpine
+    commands:
+      - echo "✅ Pipeline frontend déclenché sur ${CI_COMMIT_BRANCH}"
+      - "echo Event déclencheur : ${CI_PIPELINE_EVENT}"
+    when:
+      event: [push, manual, pull_request]
+
+  build:
+    image: node:20
+    commands:
+      - echo "📦 Build frontend"
+      - npm install
+      - npm run build
+    when:
+      branch: [staging, prod]
+      event: [push, manual]
+
+  deploy-staging:
+    image: docker/compose:1.29.2
+    privileged: true
+    depends_on: [build]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - docker-compose -f docker-compose.staging.yml -p frontend_staging down --remove-orphans || true
+      - docker rm -f frontend_staging || true
+      - docker-compose -f docker-compose.staging.yml -p frontend_staging up -d --build --remove-orphans
+    when:
+      branch: [staging]
+      event: [push, manual]
+
+  deploy-prod:
+    image: docker/compose:1.29.2
+    depends_on: [build]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - docker-compose -f docker-compose.prod.yml -p frontend_prod down --remove-orphans || true
+      - docker rm -f frontend_prod || true
+      - docker-compose -f docker-compose.prod.yml -p frontend_prod up -d --build --remove-orphans
+    when:
+      branch: [prod]
+      event: [push, manual]
