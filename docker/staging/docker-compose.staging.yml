@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: qip_front_staging
     ports:
-      - "8012:80"
+      - "8011:80"
     networks:
       - qip_backend_net
       - woodpecker_default
