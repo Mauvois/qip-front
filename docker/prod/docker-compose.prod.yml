@@ -3,7 +3,9 @@ version: "3.9"
 services:
   frontend:
     image: qip_front_prod
-    build: .
+    build:
+      context: ../..
+      dockerfile: Dockerfile
     container_name: qip_front_prod
     ports:
       - "8013:80"

@@ -24,9 +24,9 @@ steps:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - docker-compose -f docker-compose.staging.yml -p frontend_staging down --remove-orphans || true
-      - docker rm -f frontend_staging || true
-      - docker-compose -f docker-compose.staging.yml -p frontend_staging up -d --build --remove-orphans
+      - docker-compose -f docker/staging/docker-compose.staging.yml -p qip_front_staging down --remove-orphans || true
+      - docker rm -f qip_front_staging || true
+      - docker-compose -f docker/staging/docker-compose.staging.yml -p qip_front_staging up -d --build --remove-orphans
     when:
       branch: [staging]
       event: [push, manual]
@@ -37,9 +37,9 @@ steps:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - docker-compose -f docker-compose.prod.yml -p frontend_prod down --remove-orphans || true
-      - docker rm -f frontend_prod || true
-      - docker-compose -f docker-compose.prod.yml -p frontend_prod up -d --build --remove-orphans
+      - docker-compose -f docker/prod/docker-compose.prod.yml -p qip_front_prod down --remove-orphans || true
+      - docker rm -f qip_front_prod || true
+      - docker-compose -f docker/prod/docker-compose.prod.yml -p qip_front_prod up -d --build --remove-orphans
     when:
       branch: [prod]
       event: [push, manual]

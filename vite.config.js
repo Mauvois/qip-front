@@ -6,7 +6,6 @@ import path from 'path';
 dotenv.config({ path: './backend/.env' });
 
 export default defineConfig({
-    root: 'frontend',  // this sets the root directory for the frontend
     plugins: [vue()],
     css: {
         postcss: {
@@ -18,7 +17,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            "@": path.resolve(__dirname, "frontend/src"),
+            "@": path.resolve(__dirname, "src"),
         },
     },
     server: {
@@ -38,7 +37,7 @@ export default defineConfig({
         },
     },
     build: {
-        outDir: '../dist',  // if you want build files to be outside of frontend directory
+        outDir: 'dist',
     },
     define: {
         'process.env.VUE_APP_BACKEND_URL': JSON.stringify(process.env.VUE_APP_BACKEND_URL),
