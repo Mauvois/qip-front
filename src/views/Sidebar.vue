@@ -1,214 +1,104 @@
 <template>
-    <div class="sidebar-container">
-        <div class="sidebar-content">
-            <img src="@/assets/logos/logo_bleu_clair_transparent.png" alt="Logo" class="logo">
-            <div v-if="user" class="user-interaction">
-                <div class="user-info">
-                    {{ user.username }}
-                    <svg @click="toggleMenu" ref="menuButton" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="menu-icon">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-                    </svg>
-                </div>
-                <div v-if="showMenu" ref="menu" class="menu-dropdown">
-                    <a href="#" @click.prevent="showSettings" class="menu-item">Settings</a>
-                    <a href="#" @click.prevent="showProfile" class="menu-item">Profile</a>
-                    <a href="#" @click.prevent="logout" class="menu-item">Logout</a>
-                </div>
-            </div>
+  <aside class="sidebar-container" aria-label="Navigation du projet">
+    <div class="sidebar-top">
+      <div class="brand-row">
+        <img src="@/assets/logos/logo_bleu_clair_transparent.png" alt="Qip" class="logo" />
+        <div v-if="user" class="user-interaction" @keydown.esc="showMenu = false">
+          <button ref="menuButton" type="button" class="account-button" :aria-expanded="showMenu"
+            aria-haspopup="true" :aria-label="`Menu du compte ${user.username}`" @click="showMenu = !showMenu">
+            <span class="avatar" aria-hidden="true">{{ user.username?.slice(0, 1).toUpperCase() }}</span>
+            <span class="account-dots" aria-hidden="true">···</span>
+          </button>
+          <div v-if="showMenu" ref="menu" class="menu-dropdown">
+            <span class="menu-username">{{ user.username }}</span>
+            <button type="button" @click="openMenu = 'profile'; showMenu = false">Profil</button>
+            <button type="button" @click="openMenu = 'settings'; showMenu = false">Réglages</button>
+            <button type="button" @click="logout">Déconnexion</button>
+          </div>
         </div>
-        <Tags v-if="isLargeScreen" @update:selectedTags="handleTagSelected" />
+      </div>
+      <slot name="project" />
+      <slot name="search" />
+      <button type="button" class="mobile-toggle" :aria-expanded="mobileExpanded" aria-controls="sidebar-panel"
+        @click="mobileExpanded = !mobileExpanded">
+        Filtres et temps <span aria-hidden="true">{{ mobileExpanded ? '⌃' : '⌄' }}</span>
+      </button>
     </div>
-    <Settings v-if="openMenu === 'settings'" @close="openMenu = null" />
-    <Profile v-if="openMenu === 'profile'" @close="openMenu = null" />
+    <div id="sidebar-panel" class="sidebar-panel" :class="{ 'mobile-collapsed': !mobileExpanded }">
+      <div class="sidebar-filters"><slot name="filters" /></div>
+      <div class="sidebar-time"><slot name="time" /></div>
+    </div>
+  </aside>
+  <Settings v-if="openMenu === 'settings'" @close="openMenu = null" />
+  <Profile v-if="openMenu === 'profile'" :username="user?.username" :bio="user?.bio" @close="openMenu = null" />
 </template>
 
 <script>
 import { mapState } from 'vuex';
-import axios from '@/axios.js';
+import Settings from './Settings.vue';
+import Profile from './Profile.vue';
 
 export default {
-    name: 'Sidebar',
-    computed: {
-        ...mapState(['user']),
+  name: 'Sidebar',
+  components: { Settings, Profile },
+  computed: { ...mapState(['user']) },
+  data() { return { showMenu: false, openMenu: null, mobileExpanded: false }; },
+  mounted() { document.addEventListener('click', this.handleClickOutside); },
+  beforeUnmount() { document.removeEventListener('click', this.handleClickOutside); },
+  methods: {
+    handleClickOutside(event) {
+      if (this.$refs.menuButton && !this.$refs.menuButton.contains(event.target) &&
+        (!this.$refs.menu || !this.$refs.menu.contains(event.target))) this.showMenu = false;
     },
-    data() {
-        return {
-            showMenu: false,
-            openMenu: null,
-            isLargeScreen: false,
-
-        };
+    async logout() {
+      try {
+        await this.$store.dispatch('logout');
+        this.$router.push('/');
+      } catch (error) {
+        console.error('An error occurred during logout:', error);
+      }
     },
-    mounted() {
-        document.addEventListener('click', this.handleClickOutside);
-        this.checkScreenSize();
-        window.addEventListener('resize', this.checkScreenSize);
-    },
-    beforeDestroy() {
-        document.removeEventListener('click', this.handleClickOutside);
-        window.removeEventListener('resize', this.checkScreenSize);
-        s
-    },
-    methods: {
-        toggleMenu() {
-            this.showMenu = !this.showMenu;
-            console.log("Menu toggle clicked. Current state of showMenu:", this.showMenu);
-        },
-        showSettings() {
-            this.openMenu = this.openMenu === 'settings' ? null : 'settings';
-            this.showMenu = false;
-            this.$emit('show-settings');
-        },
-        showProfile() {
-            this.openMenu = this.openMenu === 'profile' ? null : 'profile';
-            this.showMenu = false;
-            this.$store.commit('toggleProfileVisibility');
-        },
-        handleClickOutside(event) {
-            if (!this.$refs.menuButton.contains(event.target) &&
-                (!this.$refs.menu || !this.$refs.menu.contains(event.target))) {
-                this.showMenu = false;
-            }
-        },
-        checkScreenSize() {
-            this.isLargeScreen = window.innerWidth > 600; // Adjust 600 to your breakpoint
-        },
-        async logout() {
-            try {
-                await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}logout/`);
-                this.$store.commit('setUser', null);
-                this.$router.push('/');
-            } catch (error) {
-                console.error('An error occurred during logout:', error);
-            }
-        },
-    },
+  },
 };
 </script>
 
 <style scoped>
-.sidebar-container {
-    background-color: #4B6075;
-    width: 16%;
-    z-index: 20;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.sidebar-content {
-    display: flex;
-    /* flex-direction: column ; */
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    max-height: 75px;
-    width: auto;
-    align-self: flex-start;
-}
-
-.user-interaction {
-    cursor: pointer;
-    position: relative;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    color: #E6EDF5;
-}
-
-.menu-icon {
-    margin-left: 0.5rem;
-    width: 24px;
-    height: 24px;
-    stroke: #E6EDF5;
-}
-
-.menu-dropdown {
-    position: absolute;
-    z-index: 1010;
-    background-color: #56595C;
-    border-radius: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    width: auto;
-    top: 100%;
-    left: 0;
-    color: #9EA3A8;
-}
-
-.menu-item {
-    text-align: center;
-    padding: 0.25rem 1rem;
-    width: 100%;
-}
-
-.menu-item:hover {
-    background-color: #E5E7EB;
-}
-
-@media (min-width: 600px) {
-
-    /* Adjust 600px to your breakpoint */
-    .sidebar-container {
-        /* Existing styles */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 40%;
-        /* Ensure tags are aligned to the bottom */
-    }
-
-    .sidebar-content {
-        flex-direction: column;
-        /* flex: 2; */
-        padding-bottom: 10%;
-    }
-
-    .logo {
-        max-height: 100px;
-        width: auto;
-        align-self: center;
-    }
-}
-
+.sidebar-container { --line: #ffffff20; width: clamp(218px, 18.5vw, 284px); flex: none; min-width: 0;
+  height: 100%; z-index: 20; display: flex; flex-direction: column; background: #263b50;
+  color: #e6edf5; box-shadow: 2px 0 14px #162a3921; }
+.sidebar-top { padding: 1.2rem 1.15rem 1rem; flex: none; }
+.brand-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; min-height: 2.7rem; }
+.logo { display: block; width: 75px; max-height: 46px; object-fit: contain; object-position: left center; }
+.user-interaction { position: relative; }
+.account-button { display: flex; align-items: center; gap: .2rem; padding: .15rem; background: none;
+  border: 0; border-radius: .55rem; color: #e6edf5; cursor: pointer; }
+.account-button:hover, .account-button[aria-expanded='true'] { background: #ffffff17; }
+.avatar { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%;
+  background: #68839b; color: #fff; font-size: .8rem; font-weight: 700; }
+.account-dots { font-size: 1.3rem; letter-spacing: -.15em; line-height: 1; padding-right: .3rem; }
+.menu-dropdown { position: absolute; z-index: 1010; right: 0; top: calc(100% + .45rem);
+  min-width: 165px; padding: .35rem; border-radius: .65rem; border: 1px solid #c7d5e0;
+  background: #fff; color: #263b50; box-shadow: 0 14px 35px #15273942; }
+.menu-username { display: block; padding: .35rem .6rem .5rem; color: #5a7082; font-size: .76rem;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-bottom: 1px solid #e3eaf0; }
+.menu-dropdown button { display: block; width: 100%; text-align: left; border: 0; background: none;
+  color: inherit; padding: .55rem .6rem; border-radius: .35rem; cursor: pointer; }
+.menu-dropdown button:hover, .menu-dropdown button:focus-visible { background: #edf3f8; }
+.sidebar-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
+.sidebar-filters { padding: .4rem 1.15rem 1.5rem; }
+.sidebar-time { padding: 1.5rem 1.15rem 1.6rem; border-top: 1px solid var(--line); margin-top: auto; }
+.mobile-toggle { display: none; }
+.account-button:focus-visible, .mobile-toggle:focus-visible { outline: 2px solid #b2d9f5; outline-offset: 2px; }
 @media (max-width: 600px) {
-    .sidebar-container {
-        background-color: #4B6075;
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 8%;
-        width: 100%;
-        padding-top: 0;
-        justify-content: space-between;
-    }
-
-    .user-info {
-        min-height: 50px;
-    }
-
-    .menu-dropdown {
-        background-color: #56595C;
-        border-radius: 0.5rem;
-        margin-top: 0;
-        padding: 0.2rem;
-        top: 75%;
-        left: 10%;
-    }
-
-    .menu-item:hover {
-        background-color: #56595C;
-        color: #E6EDF5;
-    }
+  .sidebar-container { width: 100%; height: auto; max-height: min(65vh, 520px); box-shadow: 0 2px 12px #162a392b; }
+  .sidebar-top { padding: .6rem 1rem .5rem; }
+  .brand-row { min-height: 2.25rem; }
+  .logo { width: 62px; max-height: 36px; }
+  .sidebar-panel { overflow-y: auto; }
+  .sidebar-panel.mobile-collapsed { display: none; }
+  .sidebar-filters { padding: .5rem 1rem 1rem; }
+  .sidebar-time { margin-top: 0; padding: 1.1rem 1rem 1.25rem; }
+  .mobile-toggle { display: flex; justify-content: space-between; align-items: center; width: 100%;
+    padding: .65rem 0 .15rem; background: none; border: 0; color: #bed0e0; font-size: .76rem; cursor: pointer; }
 }
 </style>

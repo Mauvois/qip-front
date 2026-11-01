@@ -4,12 +4,14 @@ import About from '@/views/about.vue'
 import Dashboard from '@/views/Dashboard.vue'
 import PasswordResetRequest from '@/views/PasswordResetRequest.vue';
 import PasswordResetConfirm from '@/views/PasswordResetConfirm.vue';
+import TermsOfUse from '@/views/TermsOfUse.vue';
 import store from './store' // Import the store
 
 const routes = [
     { path: '/', name: 'Home', component: Home },
     { path: '/about', name: 'About', component: About },
     { path: '/dashboard', name: 'Dashboard', component: Dashboard },
+    { path: '/conditions-utilisation', name: 'TermsOfUse', component: TermsOfUse },
     {
         path: '/password-reset',
         name: 'PasswordResetRequest',

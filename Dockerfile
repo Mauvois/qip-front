@@ -1,5 +1,4 @@
-# Utilise une image officielle Node avec Alpine pour la légèreté
-FROM node:20-alpine as build
+FROM node:20-alpine AS build
 
 # Répertoire de travail
 WORKDIR /app
@@ -11,15 +10,16 @@ RUN npm install
 # Copie le reste du code
 COPY . .
 
+# Les requêtes API sont servies sur la même origine par Nginx.
+ENV VITE_APP_BACKEND_URL=/
+
 # Build du projet
 RUN npm run build
 
 # Étape de déploiement avec Nginx
 FROM nginx:stable-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copie de la config nginx personnalisée (facultatif)
-# COPY nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx.prod.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 

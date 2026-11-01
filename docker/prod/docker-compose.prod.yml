@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   frontend:
     image: qip_front_prod
@@ -8,14 +6,17 @@ services:
       dockerfile: Dockerfile
     container_name: qip_front_prod
     ports:
-      - "8012:80"
+      - "127.0.0.1:8012:80"
+    volumes:
+      - qip_static:/srv/qip-static:ro
     networks:
       - qip_backend_net
-      - woodpecker_default
     restart: unless-stopped
 
 networks:
   qip_backend_net:
     external: true
-  woodpecker_default:
+
+volumes:
+  qip_static:
     external: true

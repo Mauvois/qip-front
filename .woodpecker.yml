@@ -29,7 +29,7 @@ steps:
       - docker compose -f docker/staging/docker-compose.staging.yml -p qip_front_staging up -d --build --remove-orphans
     when:
       branch: [staging]
-      event: [push, manual]
+      event: [manual]
 
   deploy-prod:
     image: docker:27.5.1-cli
@@ -42,4 +42,4 @@ steps:
       - docker compose -f docker/prod/docker-compose.prod.yml -p qip_front_prod up -d --build --remove-orphans
     when:
       branch: [prod]
-      event: [push, manual]
+      event: [manual]

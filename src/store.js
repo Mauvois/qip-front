@@ -71,7 +71,6 @@ export default createStore({
     async fetchItemDetails({ commit }, { itemId, itemType }) {
       try {
         const response = await axios.get(`media-detail/${itemId}`);
-        console.log("Fetched Item Details:", response.data);
         commit('setDetailModalContent', response.data);
         commit('toggleDetailVisibility');
       } catch (error) {
@@ -80,13 +79,8 @@ export default createStore({
     },
     async initializeAuthenticationState({ commit }) {
       try {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}check_session/`, { withCredentials: true });
-          commit('setUser', response.data.user);
-        } else {
-          commit('clearUser');
-        }
+        const response = await axios.get('/check_session/');
+        commit('setUser', response.data.user);
       } catch (error) {
         console.error('Error during session check:', error);
         commit('clearUser');
@@ -95,12 +89,10 @@ export default createStore({
     async login({ commit }, credentials) {
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_APP_BACKEND_URL}login/`,
+          '/login/',
           credentials,
           { withCredentials: true }
         );
-        const token = response.data.token;
-        localStorage.setItem('authToken', token);
         commit('setUser', response.data.user);
       } catch (error) {
         console.error('An error occurred during login:', error);
@@ -110,13 +102,15 @@ export default createStore({
     async signup({ commit, dispatch }, credentials) {
       try {
         await axios.post(
-          `${import.meta.env.VITE_APP_BACKEND_URL}signup/`,
+          '/signup/',
           {
             username: credentials.username,
             email: credentials.email,
             password: credentials.password,
             first_name: credentials.first_name,
-            last_name: credentials.last_name
+            last_name: credentials.last_name,
+            accept_terms: credentials.accept_terms,
+            terms_version: credentials.terms_version
           }
         );
         await dispatch('login', {
@@ -130,7 +124,7 @@ export default createStore({
     },
     async logout({ commit }) {
       try {
-        await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}logout/`, {}, { withCredentials: true });
+        await axios.post('/logout/');
         localStorage.removeItem('authToken');
         commit('clearUser');
       } catch (error) {
@@ -139,18 +133,18 @@ export default createStore({
     },
     async fetchMediaUrl({ commit }, mediaId) {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}media-detail/${mediaId}`);
-        commit('setClickedMediaUrl', response.data.signedUrl);
+        const response = await axios.get(`/media-detail/${mediaId}/`);
+        commit('setClickedMediaUrl', response.data.signed_url);
       } catch (error) {
         console.error('Error fetching media URL:', error);
       }
     },
     async requestPasswordReset({ commit }, payload) {
-      const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}password-reset/`, payload);
+      const response = await axios.post('/password-reset/', payload);
       return response.data;
     },
     async resetPassword({ commit }, payload) {
-      const response = await axios.post(`${import.meta.env.VITE_APP_BACKEND_URL}password-reset-confirm/${payload.uidb64}/${payload.token}/`, payload);
+      const response = await axios.post(`/password-reset-confirm/${payload.uidb64}/${payload.token}/`, payload);
       return response.data;
     },
     async addItem({ commit }, formData) {

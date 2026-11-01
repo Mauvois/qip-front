@@ -66,7 +66,6 @@ export default {
         },
         async handleFileUpload(event) {
             this.mediaFile = event.target.files[0];
-            console.log('Selected file:', this.mediaFile); // Debugging line
             if (this.mediaFile) {
                 if (this.mediaFile.size > MAX_FILE_SIZE) {
                     alert("File size should not exceed 5MB");
@@ -84,9 +83,7 @@ export default {
                         }
                     });
                     this.mediaUploadUrl = response.data.signedUrl;
-                    console.log('Generated Signed URL:', this.mediaUploadUrl); // Debugging line
                     await this.uploadToGCP(this.mediaUploadUrl, this.mediaFile);
-                    console.log('File uploaded successfully:', this.mediaUploadUrl);
                 } catch (error) {
                     console.error('Error generating signed URL:', error);
                 }
@@ -94,17 +91,15 @@ export default {
         },
         async uploadToGCP(url, file) {
             try {
-                console.log("Uploading to URL:", url);
                 const response = await fetch(url, {
                     method: 'PUT',
                     body: file,
                     headers: {
                         'Content-Type': file.type
                     },
-                    credentials: 'include'
+                    credentials: 'omit'
                 });
                 if (response.ok) {
-                    console.log('File uploaded successfully to GCP');
                 } else {
                     console.error('Error uploading to GCP:', response.statusText);
                 }
@@ -116,7 +111,7 @@ export default {
         async addTag() {
             if (this.newTag) {
                 try {
-                    const response = await axios.post('/tags/add/', { name: this.newTag });
+                    const response = await axios.post('/tags/', { name: this.newTag });
                     this.tags.push(response.data);
                     this.selectedTags.push(response.data.id);
                     this.newTag = '';
