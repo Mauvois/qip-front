@@ -13,15 +13,13 @@
             <span class="menu-username">{{ user.username }}</span>
             <button type="button" @click="openMenu = 'profile'; showMenu = false">Profil</button>
             <button type="button" @click="openMenu = 'settings'; showMenu = false">Réglages</button>
+            <button type="button" @click="openHelp">Guide d’utilisation</button>
             <button type="button" @click="logout">Déconnexion</button>
           </div>
         </div>
       </div>
       <slot name="project" />
       <slot name="search" />
-      <button type="button" class="help-button" @click="$emit('help')">
-        <span class="help-symbol" aria-hidden="true">?</span> Guide d’utilisation
-      </button>
       <button type="button" class="mobile-toggle" :aria-expanded="mobileExpanded" aria-controls="sidebar-panel"
         @click="mobileExpanded = !mobileExpanded">
         Filtres et temps <span aria-hidden="true">{{ mobileExpanded ? '⌃' : '⌄' }}</span>
@@ -50,6 +48,11 @@ export default {
   mounted() { document.addEventListener('click', this.handleClickOutside); },
   beforeUnmount() { document.removeEventListener('click', this.handleClickOutside); },
   methods: {
+    openHelp() {
+      this.showMenu = false;
+      this.$refs.menuButton?.focus();
+      this.$emit('help');
+    },
     handleClickOutside(event) {
       if (this.$refs.menuButton && !this.$refs.menuButton.contains(event.target) &&
         (!this.$refs.menu || !this.$refs.menu.contains(event.target))) this.showMenu = false;
@@ -89,22 +92,15 @@ export default {
   color: inherit; padding: .55rem .6rem; border-radius: .35rem; cursor: pointer; }
 .menu-dropdown button:hover, .menu-dropdown button:focus-visible { background: #edf3f8; }
 .sidebar-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
-.help-button { display: flex; align-items: center; gap: .6rem; width: 100%; margin-top: 1rem;
-  padding: .55rem .65rem; border: 1px solid #ffffff30; border-radius: .55rem;
-  background: #ffffff0e; color: #e6edf5; font-size: .78rem; text-align: left; cursor: pointer; }
-.help-button:hover { background: #ffffff22; }
-.help-symbol { display: grid; place-items: center; width: 1.25rem; height: 1.25rem;
-  border: 1px solid #a8c9de; border-radius: 50%; color: #cce5f2; font-weight: 700; }
 .sidebar-filters { padding: .4rem 1.15rem 1.5rem; }
 .sidebar-time { padding: 1.5rem 1.15rem 1.6rem; border-top: 1px solid var(--line); margin-top: auto; }
 .mobile-toggle { display: none; }
-.account-button:focus-visible, .mobile-toggle:focus-visible, .help-button:focus-visible { outline: 2px solid #b2d9f5; outline-offset: 2px; }
+.account-button:focus-visible, .mobile-toggle:focus-visible { outline: 2px solid #b2d9f5; outline-offset: 2px; }
 @media (max-width: 600px) {
   .sidebar-container { width: 100%; height: auto; max-height: min(65vh, 520px); box-shadow: 0 2px 12px #162a392b; }
   .sidebar-top { padding: .6rem 1rem .5rem; }
   .brand-row { min-height: 2.25rem; }
   .logo { width: 62px; max-height: 36px; }
-  .help-button { margin-top: .6rem; }
   .sidebar-panel { overflow-y: auto; }
   .sidebar-panel.mobile-collapsed { display: none; }
   .sidebar-filters { padding: .5rem 1rem 1rem; }

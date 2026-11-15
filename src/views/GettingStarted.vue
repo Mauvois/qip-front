@@ -16,7 +16,7 @@
           <span class="principle-arrow" aria-hidden="true">→</span>
           <div class="factoid"><strong>Factoïdes</strong><small>Ce que disent les sources</small></div>
           <span class="principle-arrow" aria-hidden="true">→</span>
-          <div class="qualified"><strong>Informations qualifiées</strong><small>L’analyse du chercheur</small></div>
+          <div class="qualified"><strong>Informations qualifiées</strong><small>Les informations établies par le chercheur</small></div>
         </div>
         <p v-if="current.detail" class="detail">{{ current.detail }}</p>
       </div>
@@ -41,8 +41,8 @@ const step = ref(0), dialog = ref(null), title = ref(null);
 let previousFocus;
 const steps = computed(() => [
   { title: 'À quoi sert Qip ?',
-    description: 'Qip sert à organiser une recherche historique : enregistrer des documents, relever ce qu’ils disent et rédiger une analyse.',
-    detail: 'Les frises affichent ces contenus dans le temps. Chaque fiche permet de retrouver les sources utilisées.' },
+    description: 'Qip permet de construire une analyse de l’histoire en organisant des sources et des informations sur des frises à différentes échelles de temps.',
+    detail: 'On peut ainsi observer leur répartition dans le temps et retrouver les sources utilisées pour chaque information.' },
   { title: 'Projets',
     description: 'Sélectionnez un projet dans le menu « Projet actif » à gauche. Les données affichées appartiennent au projet choisi.',
     detail: props.hasProject ? '' : 'Pour créer un projet, cliquez sur + en bas à droite. Vous pouvez aussi rejoindre un projet auquel vous avez été invité.' },
@@ -62,7 +62,7 @@ const steps = computed(() => [
     detail: 'À gauche, « Historique » affiche les dates des faits ou des documents ; « Consignation » affiche leur date d’enregistrement dans Qip. Vous pouvez changer la date de référence.' },
   { title: 'Recherche et filtres',
     description: 'Dans la barre de gauche, saisissez un titre pour rechercher une fiche. Le bouton à droite du champ ouvre la recherche avancée.',
-    detail: 'Sous « Affichage », choisissez les contenus et les dates visibles sur les frises. Le bouton « Guide d’utilisation » permet de rouvrir ce guide.' },
+    detail: 'Sous « Affichage », choisissez les contenus et les dates visibles sur les frises. Le guide reste accessible depuis le menu du compte, en haut à gauche.' },
 ]);
 const current = computed(() => steps.value[step.value]);
 
