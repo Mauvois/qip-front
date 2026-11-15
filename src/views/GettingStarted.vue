@@ -41,8 +41,8 @@ const step = ref(0), dialog = ref(null), title = ref(null);
 let previousFocus;
 const steps = computed(() => [
   { title: 'À quoi sert Qip ?',
-    description: 'Qip permet de construire une analyse de l’histoire en organisant des sources et des informations sur des frises à différentes échelles de temps.',
-    detail: 'On peut ainsi observer leur répartition dans le temps et retrouver les sources utilisées pour chaque information.' },
+    description: 'Qip permet de construire une analyse de la structure de l’historique à différentes échelles de temps.',
+    detail: 'Les frises organisent les sources et les informations dans le temps. Chaque fiche permet de retrouver les sources utilisées.' },
   { title: 'Projets',
     description: 'Sélectionnez un projet dans le menu « Projet actif » à gauche. Les données affichées appartiennent au projet choisi.',
     detail: props.hasProject ? '' : 'Pour créer un projet, cliquez sur + en bas à droite. Vous pouvez aussi rejoindre un projet auquel vous avez été invité.' },
