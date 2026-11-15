@@ -20,7 +20,7 @@
       <slot name="project" />
       <slot name="search" />
       <button type="button" class="help-button" @click="$emit('help')">
-        <span class="help-symbol" aria-hidden="true">?</span> Aide · Premiers pas
+        <span class="help-symbol" aria-hidden="true">?</span> Guide d’utilisation
       </button>
       <button type="button" class="mobile-toggle" :aria-expanded="mobileExpanded" aria-controls="sidebar-panel"
         @click="mobileExpanded = !mobileExpanded">
