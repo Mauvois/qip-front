@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copie les fichiers nécessaires
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm ci
 
 # Copie le reste du code
 COPY . .
@@ -18,7 +18,10 @@ RUN npm run build
 
 # Étape de déploiement avec Nginx
 FROM nginx:stable-alpine
+ARG VCS_REF=local
+LABEL org.opencontainers.image.revision=$VCS_REF
 COPY --from=build /app/dist /usr/share/nginx/html
+RUN printf '%s\n' "$VCS_REF" > /usr/share/nginx/html/deployment-version.txt
 COPY docker/nginx.prod.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80

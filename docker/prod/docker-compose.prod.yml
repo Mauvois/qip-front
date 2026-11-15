@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: qip_front_prod
+    image: ${QIP_FRONT_IMAGE:-qip_front_prod}
     build:
       context: ../..
       dockerfile: Dockerfile
@@ -12,6 +12,11 @@ services:
     networks:
       - qip_backend_net
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 networks:
   qip_backend_net:
