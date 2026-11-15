@@ -18,6 +18,9 @@
           <span class="principle-arrow" aria-hidden="true">→</span>
           <div class="qualified"><strong>Informations qualifiées</strong><small>Les informations établies par le chercheur</small></div>
         </div>
+        <ol v-if="current.actions" class="guide-list">
+          <li v-for="action in current.actions" :key="action">{{ action }}</li>
+        </ol>
         <p v-if="current.detail" class="detail">{{ current.detail }}</p>
       </div>
 
@@ -43,32 +46,56 @@ const steps = computed(() => [
   { title: 'À quoi sert Qip ?',
     description: 'Qip permet de construire une analyse de la structure de l’historique à différentes échelles de temps.',
     detail: 'Les frises organisent les sources et les informations dans le temps. Chaque fiche permet de retrouver les sources utilisées.' },
-  { title: 'Projets',
-    description: 'Sélectionnez un projet dans le menu « Projet actif » à gauche. Les données affichées appartiennent au projet choisi.',
-    detail: props.hasProject ? '' : 'Pour créer un projet, cliquez sur + en bas à droite. Vous pouvez aussi rejoindre un projet auquel vous avez été invité.' },
+  props.hasProject
+    ? { title: 'Choisir un projet',
+      description: 'Les contenus affichés appartiennent au projet indiqué dans « Projet actif », à gauche.',
+      actions: ['Ouvrez le menu « Projet actif » pour passer à un autre projet auquel vous avez accès.',
+        'Pour créer un autre projet, cliquez sur + en bas à droite, puis choisissez « Nouveau projet » dans « Gérer ».'],
+      detail: 'Chaque projet possède ses propres sources, informations et membres.' }
+    : { title: 'Créer un projet',
+      description: 'Vous n’avez pas encore de projet. Il faut en créer un pour commencer à enregistrer des contenus.',
+      actions: ['Cliquez sur le bouton + en bas à droite : le formulaire « Nouveau projet » s’ouvre.',
+        'Saisissez un nom. Vous pouvez ajouter une description ; le fuseau horaire est prérempli.',
+        'Cliquez sur « Créer le projet ». Il devient le projet actif et vous pouvez y ajouter des contenus.'],
+      detail: 'Si quelqu’un vous invite dans son projet, il apparaîtra aussi dans le menu « Projet actif ».' },
   props.canEdit
     ? { title: 'Ajouter des contenus',
-      description: 'Cliquez sur + en bas à droite. Créez d’abord un type d’information, puis une source et un factoïde.',
-      detail: 'Dans le formulaire du factoïde, ajoutez au moins une citation et sélectionnez la source correspondante.' }
+      description: 'Cliquez sur + en bas à droite pour ouvrir les sections de création. Voici un premier parcours :',
+      actions: ['Dans « Types », créez un type avec l’usage « Informations ». Il sera demandé pour chaque information.',
+        'Dans « Sources », enregistrez un document avec un titre ; sa date historique est facultative.',
+        'Dans « Informations », choisissez le niveau « Factoïde », puis le type créé. Ajoutez une citation et sélectionnez la source : au moins une source est requise.'],
+      detail: 'Vous pourrez ensuite créer une information qualifiée et y relier les factoïdes examinés.' }
     : !props.hasProject
       ? { title: 'Ajouter des contenus',
-        description: 'Créez d’abord un projet avec le bouton +. Vous pourrez ensuite y ajouter un type d’information, une source et un factoïde.',
-        detail: 'Un factoïde doit citer au moins une source.' }
+        description: 'Une fois votre projet créé, le bouton + ouvrira les sections de création.',
+        actions: ['Créez un type avec l’usage « Informations » dans « Types ».',
+          'Ajoutez un document dans « Sources ».',
+          'Créez un factoïde dans « Informations », avec ce type et au moins une citation liée à la source.'],
+        detail: 'Vous pourrez ensuite créer une information qualifiée à partir des factoïdes relevés.' }
       : { title: 'Consulter les contenus',
-        description: 'Dans ce projet, vous avez accès à la lecture. Cliquez sur un marqueur de la frise pour ouvrir la fiche correspondante.',
-        detail: 'La fiche indique notamment les sources citées. La création de contenus dépend de vos droits dans le projet.' },
+        description: 'Vous avez accès à ce projet en lecture seule. Vous pouvez consulter ses contenus sans les modifier.',
+        actions: ['Cliquez sur un marqueur de la frise pour ouvrir la fiche d’une source ou d’une information.',
+          'Dans la fiche, consultez les sources citées et les liens entre les informations.'],
+        detail: 'Pour ajouter des contenus à ce projet, il faut disposer des droits d’édition.' },
   { title: 'Frises chronologiques',
-    description: 'Cliquez sur un marqueur pour ouvrir une fiche. Si plusieurs marqueurs sont regroupés, cliquez sur le groupe pour voir la liste.',
-    detail: 'À gauche, « Historique » affiche les dates des faits ou des documents ; « Consignation » affiche leur date d’enregistrement dans Qip. Vous pouvez changer la date de référence.' },
+    description: 'Les frises montrent les contenus autour de la date de référence, à plusieurs échelles de temps.',
+    actions: ['Cliquez sur un marqueur pour ouvrir sa fiche. Si des marqueurs se chevauchent, cliquez sur leur groupe pour voir la liste.',
+      'Dans « Repère temporel », cliquez sur la date pour explorer une autre période ; « Maintenant » revient au présent.',
+      'Réglez « Amplitude des frises » pour voir une période plus large. Les boutons + aux extrémités ajoutent d’autres échelles.'],
+    detail: 'Les filtres « Historique » et « Consignation » distinguent la date des faits ou documents de la date de leur enregistrement dans Qip.' },
   { title: 'Recherche et filtres',
-    description: 'Dans la barre de gauche, saisissez un titre pour rechercher une fiche. Le bouton à droite du champ ouvre la recherche avancée.',
-    detail: 'Sous « Affichage », choisissez les contenus et les dates visibles sur les frises. Le guide reste accessible depuis le menu du compte, en haut à gauche.' },
+    description: 'La recherche et les filtres agissent sur le projet actif.',
+    actions: ['Saisissez un titre dans le champ de recherche à gauche, puis validez. Le bouton avec deux curseurs ouvre la recherche avancée.',
+      'Sous « Affichage », sélectionnez une entité ou activez et désactivez les catégories et les axes temporels.',
+      'Après une recherche, cliquez sur × dans le bandeau des résultats pour revenir à l’exploration des frises.'],
+    detail: 'Sur mobile, ouvrez « Filtres et temps » pour accéder aux filtres. Vous retrouverez ce guide dans le menu du compte.' },
 ]);
 const current = computed(() => steps.value[step.value]);
 
 async function goTo(index) {
   step.value = index;
   await nextTick();
+  dialog.value?.scrollTo({ top: 0 });
   title.value?.focus();
 }
 function keepFocus(event) {
@@ -89,8 +116,8 @@ onUnmounted(() => { if (previousFocus?.isConnected) previousFocus.focus(); });
 .guide { width: min(100%, 620px); max-height: min(90vh, 760px); max-height: min(90dvh, 760px);
   overflow-y: auto; border: 1px solid #d8e4ec; border-radius: 1.15rem; background: #fff;
   color: #263b50; box-shadow: 0 28px 90px #0c203d59; }
-.guide-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.7rem;
-  border-bottom: 1px solid #e8eef2; }
+.guide-header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center;
+  justify-content: space-between; padding: 1rem 1.7rem; border-bottom: 1px solid #e8eef2; background: #fff; }
 .step-count { color: #597b91; font-size: .8rem; font-weight: 650; font-variant-numeric: tabular-nums; }
 .close { border: 0; background: transparent; color: #597387; border-radius: .4rem; font-size: 1.65rem;
   line-height: 1; cursor: pointer; padding: .1rem .35rem; }
@@ -107,9 +134,12 @@ h2:focus { outline: none; }
 .principle .qualified { border-top-color: #866e9f; }
 .principle strong { font-size: .8rem; line-height: 1.25; }.principle small { color: #607889; line-height: 1.35; }
 .principle-arrow { align-self: center; color: #8ba7b9; }
+.guide-list { display: grid; gap: .75rem; margin: 1.45rem 0 0; padding-left: 1.55rem;
+  color: #344e61; font-size: .9rem; line-height: 1.55; }
+.guide-list li { padding-left: .25rem; }.guide-list li::marker { color: #315e79; font-weight: 700; }
 .detail { margin: 1rem 0 0; color: #526d7e; line-height: 1.6; font-size: .9rem; }
-.guide-footer { display: flex; align-items: center; justify-content: flex-end; gap: .5rem;
-  border-top: 1px solid #e8eef2; padding: 1rem 1.7rem; }
+.guide-footer { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: flex-end;
+  gap: .5rem; border-top: 1px solid #e8eef2; padding: 1rem 1.7rem; background: #fff; }
 .guide-footer button { border-radius: .5rem; padding: .65rem .95rem;
   cursor: pointer; font-weight: 650; font-size: .82rem; }
 .previous { border: 0; background: transparent; color: #3f6278; }
