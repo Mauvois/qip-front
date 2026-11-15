@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard">
-    <Sidebar>
+    <Sidebar @help="guideOpen = true">
       <template #project>
         <label class="project-picker">
           <span class="eyebrow">Projet actif</span>
@@ -147,6 +147,7 @@
     <LegacyDetail v-if="legacySelected" :item="legacySelected" :items="legacyItems" :media="legacyMedia"
       :entities="legacyEntities" :types="legacyTypes" :statuses="legacyStatuses" :can-edit="false"
       @close="legacySelected = null" @open-file="openLegacyFile" />
+    <GettingStarted v-if="guideOpen" :can-edit="canEdit" :has-project="!!projectId" @close="closeGuide" />
   </div>
 </template>
 
@@ -156,6 +157,7 @@ import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import axios from '@/axios.js';
 import Sidebar from './Sidebar.vue';
+import GettingStarted from './GettingStarted.vue';
 import Timeline from './Timeline.vue';
 import ResearchDetailV2 from './ResearchDetailV2.vue';
 import ResearchEditorV2 from './ResearchEditorV2.vue';
@@ -202,6 +204,7 @@ const timescales = ref([...defaultScales]);
 const editorTab = ref(null);
 const editEntry = ref(null);
 const selectedEntry = ref(null);
+const guideOpen = ref(false);
 const searchQuery = ref('');
 const searchOpen = ref(false);
 const searchLoading = ref(false);
@@ -260,9 +263,21 @@ onMounted(async () => {
       editorTab.value = 'zotero';
       window.history.replaceState(null, '', '/dashboard');
     }
+    if (!editorTab.value && !hasSeenGuide()) guideOpen.value = true;
   } catch (err) { report(err); }
 });
 onUnmounted(() => window.clearInterval(clockTimer));
+
+function guideKey() { return `qip:getting-started:v1:${user.value?.username}`; }
+function hasSeenGuide() {
+  try { return window.localStorage.getItem(guideKey()) === 'seen'; }
+  catch { return false; }
+}
+function closeGuide() {
+  guideOpen.value = false;
+  try { window.localStorage.setItem(guideKey(), 'seen'); }
+  catch { /* Le guide reste accessible depuis Aide si le stockage est désactivé. */ }
+}
 
 function chooseReference(value) {
   const timestamp = new Date(value).getTime();
